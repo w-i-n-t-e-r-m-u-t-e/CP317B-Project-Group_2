@@ -18,6 +18,14 @@ class Product(BaseModel):
     # Optional field with a default factory to handle mutable types safely
     tags: list[str] = Field(default_factory=list, description="Associated search keywords")
 
+class Device(BaseModel):
+    device_id: str = Field(str, description="The unique identifier for the device")
+    device_name: str = Field(str, description="The name of the device")
+    status: str = Field(str, description="The current status of the device")
+
+class DeviceList(BaseModel):
+    devices: list[Device] = Field(default_factory=list, description="A list of devices")
+
 @app.post("/products/")
 async def create_product(product: Product):
     return {"message": "Product created successfully", "data": product}

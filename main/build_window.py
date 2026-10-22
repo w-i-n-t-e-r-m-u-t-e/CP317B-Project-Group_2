@@ -3,7 +3,7 @@ from tabs.tabs import tab_container
 
 def build_window():
     window = QWidget()
-    window.setWindowTitle("My First PySide6 App")
+    window.setWindowTitle("System Security & Update Manager")
 
     layout = QVBoxLayout(window)
     layout.addWidget(tab_container())
