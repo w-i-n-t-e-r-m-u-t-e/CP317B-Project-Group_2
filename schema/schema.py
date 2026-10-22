@@ -1,8 +1,4 @@
-from typing import Annotated
-from fastapi import Body, FastAPI
 from pydantic import BaseModel, Field
-
-app = FastAPI()
 
 # Define your data schema using Pydantic models
 class Product(BaseModel):
@@ -25,6 +21,11 @@ class Device(BaseModel):
 
 class DeviceList(BaseModel):
     devices: list[Device] = Field(default_factory=list, description="A list of devices")
+
+# server setup basics if we want to set up a server
+from fastapi import Body, FastAPI
+
+app = FastAPI()
 
 @app.post("/products/")
 async def create_product(product: Product):
