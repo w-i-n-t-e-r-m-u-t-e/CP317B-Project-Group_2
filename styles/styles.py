@@ -10,6 +10,7 @@ def image_path(filename: str) -> str:
 
 
 BG1_IMAGE = image_path("bg1.png")
+REGISTER_BUTTON_IMAGE = image_path("register_button.png")
 
 DEVICE_ROW_STYLE = """
 QFrame#deviceRow {
