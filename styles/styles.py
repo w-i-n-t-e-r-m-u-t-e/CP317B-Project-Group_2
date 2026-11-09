@@ -24,4 +24,8 @@ QFrame#deviceRow QLabel {
 }
 """
 
+BUtTON_STYLE = """
+QPushButton { padding: 0; }
+"""
+
 DEVICE_DIVIDER_STYLE = "border: 1px solid #c8ced8;"
