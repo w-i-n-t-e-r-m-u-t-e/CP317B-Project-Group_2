@@ -1,0 +1,29 @@
+[
+  {
+    "ip": "192.168.0.1",
+    "mac": "cc:32:e5:18:0b:f4",
+    "randomized_mac": false,
+    "is_this_machine": false,
+    "discovery_method": "arp",
+    "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+    "hostname": ""
+  },
+  {
+    "ip": "192.168.0.40",
+    "mac": "92:a0:1e:74:31:6b",
+    "randomized_mac": true,
+    "is_this_machine": false,
+    "discovery_method": "arp",
+    "vendor": "Private/randomized MAC",
+    "hostname": ""
+  },
+  {
+    "ip": "192.168.0.76",
+    "mac": "02:bc:b7:20:98:9f",
+    "randomized_mac": true,
+    "is_this_machine": false,
+    "discovery_method": "arp",
+    "vendor": "Private/randomized MAC",
+    "hostname": ""
+  }
+]
