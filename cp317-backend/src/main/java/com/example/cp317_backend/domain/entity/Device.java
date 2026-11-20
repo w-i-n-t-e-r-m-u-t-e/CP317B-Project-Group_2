@@ -1,4 +1,4 @@
-package com.devtiro.task.domain.entity;
+package com.example.cp317_backend.domain.entity;
 
 import jakarta.persistence.*;
 

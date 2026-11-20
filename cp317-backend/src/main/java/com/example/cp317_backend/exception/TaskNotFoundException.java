@@ -1,4 +1,4 @@
-package com.devtiro.task.exception;
+package com.example.cp317_backend.exception;
 
 import java.util.UUID;
 

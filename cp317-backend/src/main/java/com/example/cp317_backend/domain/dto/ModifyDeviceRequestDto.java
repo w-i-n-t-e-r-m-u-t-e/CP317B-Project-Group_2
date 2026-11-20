@@ -1,4 +1,4 @@
-package com.devtiro.task.domain.dto;
+package com.example.cp317_backend.domain.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

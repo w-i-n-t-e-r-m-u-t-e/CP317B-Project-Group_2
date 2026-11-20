@@ -1,13 +1,13 @@
-package com.devtiro.task.controller;
+package com.example.cp317_backend.controller;
 
-import com.devtiro.task.domain.CreateDeviceRequest;
-import com.devtiro.task.domain.ModifyDeviceRequest;
-import com.devtiro.task.domain.dto.CreateDeviceRequestDto;
-import com.devtiro.task.domain.dto.DeviceDto;
-import com.devtiro.task.domain.dto.ModifyDeviceRequestDto;
-import com.devtiro.task.domain.entity.Device;
-import com.devtiro.task.mapper.DeviceMapper;
-import com.devtiro.task.service.DeviceService;
+import com.example.cp317_backend.domain.CreateDeviceRequest;
+import com.example.cp317_backend.domain.ModifyDeviceRequest;
+import com.example.cp317_backend.domain.dto.CreateDeviceRequestDto;
+import com.example.cp317_backend.domain.dto.DeviceDto;
+import com.example.cp317_backend.domain.dto.ModifyDeviceRequestDto;
+import com.example.cp317_backend.domain.entity.Device;
+import com.example.cp317_backend.mapper.DeviceMapper;
+import com.example.cp317_backend.service.DeviceService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

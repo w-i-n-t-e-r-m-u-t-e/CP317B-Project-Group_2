@@ -1,6 +1,6 @@
-package com.devtiro.task.repository;
+package com.example.cp317_backend.repository;
 
-import com.devtiro.task.domain.entity.Device;
+import com.example.cp317_backend.domain.entity.Device;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

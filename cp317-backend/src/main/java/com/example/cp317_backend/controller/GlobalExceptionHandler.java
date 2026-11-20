@@ -1,7 +1,7 @@
-package com.devtiro.task.controller;
+package com.example.cp317_backend.controller;
 
-import com.devtiro.task.domain.dto.ErrorDto;
-import com.devtiro.task.exception.TaskNotFoundException;
+import com.example.cp317_backend.domain.dto.ErrorDto;
+import com.example.cp317_backend.exception.TaskNotFoundException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

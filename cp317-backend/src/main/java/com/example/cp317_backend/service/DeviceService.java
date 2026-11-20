@@ -1,8 +1,8 @@
-package com.devtiro.task.service;
+package com.example.cp317_backend.service;
 
-import com.devtiro.task.domain.CreateDeviceRequest;
-import com.devtiro.task.domain.ModifyDeviceRequest;
-import com.devtiro.task.domain.entity.Device;
+import com.example.cp317_backend.domain.CreateDeviceRequest;
+import com.example.cp317_backend.domain.ModifyDeviceRequest;
+import com.example.cp317_backend.domain.entity.Device;
 
 import java.util.List;
 import java.util.UUID;

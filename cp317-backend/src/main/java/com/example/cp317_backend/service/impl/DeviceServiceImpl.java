@@ -1,12 +1,12 @@
-package com.devtiro.task.service.impl;
+package com.example.cp317_backend.service.impl;
 
-import com.devtiro.task.domain.CreateDeviceRequest;
-import com.devtiro.task.domain.ModifyDeviceRequest;
-import com.devtiro.task.domain.entity.Device;
-import com.devtiro.task.domain.entity.DeviceStatus;
-import com.devtiro.task.exception.TaskNotFoundException;
-import com.devtiro.task.repository.DeviceRepository;
-import com.devtiro.task.service.DeviceService;
+import com.example.cp317_backend.domain.CreateDeviceRequest;
+import com.example.cp317_backend.domain.ModifyDeviceRequest;
+import com.example.cp317_backend.domain.entity.Device;
+import com.example.cp317_backend.domain.entity.DeviceStatus;
+import com.example.cp317_backend.exception.TaskNotFoundException;
+import com.example.cp317_backend.repository.DeviceRepository;
+import com.example.cp317_backend.service.DeviceService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort.Direction;

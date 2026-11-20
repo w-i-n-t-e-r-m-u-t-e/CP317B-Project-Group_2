@@ -1,6 +1,6 @@
-package com.devtiro.task.domain.dto;
+package com.example.cp317_backend.domain.dto;
 
-import com.devtiro.task.domain.entity.DeviceStatus;
+import com.example.cp317_backend.domain.entity.DeviceStatus;
 
 import java.time.LocalDate;
 

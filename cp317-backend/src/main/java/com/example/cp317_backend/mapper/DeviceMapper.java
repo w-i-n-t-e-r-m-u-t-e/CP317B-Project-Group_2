@@ -1,9 +1,9 @@
-package com.devtiro.task.mapper;
+package com.example.cp317_backend.mapper;
 
-import com.devtiro.task.domain.CreateDeviceRequest;
-import com.devtiro.task.domain.ModifyDeviceRequest;
-import com.devtiro.task.domain.dto.*;
-import com.devtiro.task.domain.entity.Device;
+import com.example.cp317_backend.domain.CreateDeviceRequest;
+import com.example.cp317_backend.domain.ModifyDeviceRequest;
+import com.example.cp317_backend.domain.dto.*;
+import com.example.cp317_backend.domain.entity.Device;
 import jakarta.validation.Valid;
 
 public interface DeviceMapper {
