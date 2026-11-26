@@ -1,28 +1,20 @@
 """The main screen: what needs attention first, with the full device table one click away."""
 import json
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from PySide6.QtCore import QSettings, Qt, QTimer
-from PySide6.QtGui import QColor
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QHBoxLayout, QHeaderView, QLabel,
-                               QLineEdit, QMessageBox, QFrame, QInputDialog, QScrollArea,
-                               QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QHBoxLayout, QInputDialog, QLabel, QLineEdit,
+                               QMessageBox, QPushButton, QScrollArea, QVBoxLayout, QWidget)
+from tabs.attention_cards import card_list
+from tabs.device_table import STATUS_STYLE, create_table, fill_table, filter_rows
 from tabs.register_dialog import RegisterDialog
 from tabs.versions_dialog import VersionsDialog
 from utils import releases
-from utils.attention import attention, headline
-from utils.ports import explain
+from utils.attention import headline
 from utils.scan import API_URL, save, scan
 from utils.version import status_of
-
-# column title -> field name in the backend response
-COLUMNS = {"Name": "deviceName", "IP": "ip", "Owner": "trust", "Type": "deviceType", "Version": "deviceVersion",
-           "Status": "status", "Last updated": "lastUpdated"}
-STATUS_STYLE = {"UPDATED": ("Updated", "#15803d"), "OUTDATED": ("Outdated", "#c2410c"),
-                "SUPPORTED": ("Supported", "#15803d"), "UNSUPPORTED": ("No updates", "#b91c1c"),
-                "UNKNOWN": ("Unknown", "#6b7280")}
-OWNER = {"MINE": "Mine", "GUEST": "Guest", "UNKNOWN": "Don't know", None: "New"}
 
 
 def create_devices_screen():
@@ -59,18 +51,7 @@ def create_devices_screen():
     search.setPlaceholderText("Search by name or IP")
     search.setClearButtonEnabled(True)
 
-    table = QTableWidget(0, len(COLUMNS) + 1)  # last column holds the row buttons
-    table.setHorizontalHeaderLabels([*COLUMNS, ""])
-    table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-    table.horizontalHeader().setSectionResizeMode(len(COLUMNS), QHeaderView.ResizeMode.Fixed)
-    table.setColumnWidth(len(COLUMNS), 170)
-    table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
-    table.setColumnWidth(0, 200)  # names are what people recognise
-    table.verticalHeader().hide()
-    table.verticalHeader().setDefaultSectionSize(44)
-    table.setShowGrid(False)
-    table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-    table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+    table = create_table()
     status = QLabel()
 
     verdict = QLabel()
@@ -104,63 +85,10 @@ def create_devices_screen():
         if ok and name.strip():
             change(device, name=name.strip()[:25])
 
-    def newest(device):
-        release = releases.release_for(device["deviceType"], device["deviceVersion"])
-        return (release or {}).get("latest") or "the newest version"
-
-    def card(kind, device):
-        name = device["deviceName"]
-        risks = explain(device["openPorts"])
-        question, advice = {
-            "new": (f"New device: {name}", "Is this yours?"),
-            "stranger": (f"You don't recognise: {name}",
-                         "If nobody at home owns it, change your Wi-Fi password in your router's settings."),
-            "risk": (f"{name} has {' and '.join(service for service, _ in risks)} turned on",
-                     "\n".join(text for _, text in risks)),
-            "unsupported": (f"{name} no longer gets security updates",
-                            "Upgrade to a newer system if it allows it. If not, plan to replace it."),
-            "outdated": (f"{name} is out of date",
-                         f"It has {device['deviceVersion']}. Install {newest(device)} from Software update."),
-        }[kind]
-        box = QFrame()
-        box.setObjectName("card")
-        box_layout = QVBoxLayout(box)
-        heading = QLabel(question)
-        heading.setObjectName("cardTitle")
-        heading.setTextFormat(Qt.TextFormat.PlainText)  # names come from other devices
-        text = QLabel(f"{advice}\nAddress: {device['ip']}")
-        text.setWordWrap(True)
-        box_layout.addWidget(heading)
-        box_layout.addWidget(text)
-        choices = {
-            "new": [("Mine", lambda: change(device, trust="MINE")),
-                    ("Guest", lambda: change(device, trust="GUEST")),
-                    ("I don't know it", lambda: change(device, trust="UNKNOWN"))],
-            "stranger": [("It's mine", lambda: change(device, trust="MINE")),
-                         ("It's a guest", lambda: change(device, trust="GUEST"))],
-            "outdated": [("Change version", lambda: edit(device))],
-            "unsupported": [("Change version", lambda: edit(device))],
-            "risk": [],  # scan again after turning the service off
-        }[kind] + [("Rename", lambda: rename(device))]
-        row = QHBoxLayout()
-        for label, action in choices:
-            button = QPushButton(label)
-            button.clicked.connect(lambda _, action=action: action())
-            row.addWidget(button)
-        row.addStretch()
-        box_layout.addLayout(row)
-        return box
-
-    def show_attention(devices, statuses):
+    def show_attention(devices, statuses, latest):
         verdict.setText(headline(devices, statuses))
-        content = QWidget()
-        content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        # ponytail: builds every card at once; page them if a network has hundreds of devices
-        for kind, device in attention(devices, statuses):
-            content_layout.addWidget(card(kind, device))
-        content_layout.addStretch()
-        cards.setWidget(content)  # replaces the old cards
+        # replaces the old cards
+        cards.setWidget(card_list(devices, statuses, latest, lambda device, trust: change(device, trust=trust), rename, edit))
 
     def toggle_details(shown):
         details_button.setText("Back to summary" if shown else "Show all devices")
@@ -169,22 +97,7 @@ def create_devices_screen():
         cards.setVisible(not shown)
 
     def apply_search():
-        text = search.text().strip().lower()
-        for row in range(table.rowCount()):
-            name, ip = table.item(row, 0).text(), table.item(row, 1).text()
-            table.setRowHidden(row, text not in name.lower() and text not in ip.lower())
-
-    def row_buttons(device):
-        box = QWidget()
-        box.setStyleSheet("background: transparent;")
-        box_layout = QHBoxLayout(box)
-        box_layout.setContentsMargins(6, 0, 6, 0)
-        for label, action in (("Edit", edit), ("Delete", delete)):
-            button = QPushButton(label)
-            button.setObjectName("row")
-            button.clicked.connect(lambda _, action=action: action(device))
-            box_layout.addWidget(button)
-        return box
+        filter_rows(table, search.text())
 
     def edit(device):
         if RegisterDialog(screen, device).exec():
@@ -213,7 +126,6 @@ def create_devices_screen():
             cards.setWidget(QWidget())
             status.setText("Could not reach the backend. Is it running?")
             return
-        table.setRowCount(len(devices))
         latest = settings.value("latest_by_type", {}) or {}
         types[:] = sorted({device["deviceType"] for device in devices if device["deviceType"]})
         # a version typed under "Latest versions" wins; otherwise use the published release data
@@ -221,20 +133,11 @@ def create_devices_screen():
                     if latest.get(device["deviceType"]) else
                     releases.status(device["deviceType"], device["deviceVersion"]) for device in devices]
         fetch_releases(types)
-        for row, device in enumerate(devices):
-            for column, key in enumerate(COLUMNS.values()):
-                item = QTableWidgetItem(OWNER[device[key]] if key == "trust" else device[key] or "—")
-                item.setToolTip(item.text())  # long values such as IPv6 addresses get cut off
-                if key == "status":
-                    text, color = STATUS_STYLE[statuses[row]]
-                    item.setText(f"● {text}")
-                    item.setForeground(QColor(color))
-                table.setItem(row, column, item)
-            table.setCellWidget(row, len(COLUMNS), row_buttons(device))
+        fill_table(table, devices, statuses, edit, delete)
         counts = "   ·   ".join(f"{statuses.count(key)} {label.lower()}" for key, (label, _) in STATUS_STYLE.items())
         summary.setText(f"{len(devices)} total   ·   {counts}")
         apply_search()
-        show_attention(devices, statuses)
+        show_attention(devices, statuses, latest)
         status.setText("" if devices else "No devices yet. Scan or register one.")
 
     # release data comes from the internet, so fetch it off the window's thread
@@ -285,6 +188,10 @@ def create_devices_screen():
             found, added = job.result()
         except OSError:
             status.setText("Scan failed. Check your network and that the backend is running.")
+            return
+        except Exception as error:  # never leave the screen saying "Scanning..."
+            traceback.print_exc()  # keep the details for whoever has to fix it
+            status.setText(f"Scan failed unexpectedly ({type(error).__name__}).")
             return
         reload()
         status.setText(f"Scan found {found} devices, added {added} new.")

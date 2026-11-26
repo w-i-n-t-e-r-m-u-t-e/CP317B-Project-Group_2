@@ -30,19 +30,11 @@ Windows: `.venv\Scripts\python run.py`. If it cannot find Java, set `JAVA_HOME` 
 - The app opens on what needs your attention: new devices ("Is this yours?"), ones you don't recognise, and your outdated ones. **Show all devices** has the full table.
 - **Register device:** add one by hand (name, IPv4 or IPv6 address, version, optional type).
 - **Scan network:** pings the 254 addresses around your computer and adds what answers. Some devices ignore pings. Only scan networks you have permission to scan.
-- **IPv6-only networks** (some phone hotspots): the scan sends one ping to all neighbours instead of trying each address. It works on macOS and Linux, and misses devices that ignore the ping. Agent addresses need brackets: `--server "http://[address]:8080"`.
+- **IPv6-only networks** (some phone hotspots): the scan sends one ping to all neighbours instead of trying each address. It works on macOS and Linux, and misses devices that ignore the ping.
 - **Update status:** macOS, iOS, Windows, Ubuntu and Android are checked against [endoflife.date](https://endoflife.date) (needs internet; only the product name is sent). Windows, Ubuntu and Android can only be shown as supported or not. **Latest versions** overrides this by hand.
 - **This computer:** each scan fills in its type and version automatically and marks it **Mine**.
 - **Safety check:** each scan looks for Telnet, FTP, screen sharing and video streams on devices you marked **Mine**. Finding nothing does not prove a device is safe.
 - **Rescan every 15 min:** off until you tick it.
-
-## Agent (reports a computer's OS version)
-`agent.py` needs only Python, so you can copy that one file to another computer.
-```bash
-python3 agent.py                                   # same computer as the backend
-python3 agent.py --server http://192.168.1.20:8080  # use the backend computer's IP
-```
-It reports once each time you run it.
 
 ## Checks
 ```bash

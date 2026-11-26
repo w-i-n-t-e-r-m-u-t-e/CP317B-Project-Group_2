@@ -8,9 +8,9 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
-import agent
 from utils.ports import open_ports
 from utils.scan6 import find_neighbours, interface, neighbour_macs
+from utils.this_computer import find_entry, my_ip, os_info
 from utils.vendor import label, mac_table
 
 API_URL = "http://localhost:8080/api/v1/devices"
@@ -122,13 +122,13 @@ def register_this_computer():
     with urlopen(API_URL, timeout=3) as response:
         devices = json.load(response)
     name = platform.node().removesuffix(".local")[:25] or "This computer"
-    kind, version = agent.os_info()
-    ip = agent.my_ip(API_URL)
+    kind, version = os_info()
+    ip = my_ip()
     node = uuid.getnode()
     # getnode() makes up a number (marked by this bit) when it cannot read a hardware address
     mac = None if node >> 40 & 1 else f"{node:012X}"
     entry = (next((d for d in devices if mac and d["mac"] == mac), None)
-             or agent.find_entry(devices, name, ip, kind))
+             or find_entry(devices, name, ip, kind))
     body = {"Device_Name": entry["deviceName"] if entry else name,  # keep a name the user chose
             "IP": ip, "Device_Version": version, "Device_Type": kind, "Mac": mac}
     if not entry or not entry["trust"]:
@@ -151,7 +151,7 @@ def scan():
     counts = Counter(macs.get(ip) for ip in found)
     macs = {ip: macs[ip] for ip in found if ip in macs and counts[macs[ip]] == 1}
     # this computer is already registered; its address on the network can differ from the one it reports
-    own = agent.my_ip(API_URL)
+    own = my_ip()
     entries = {ip: match(devices, ip, macs.get(ip)) for ip in found if ip != own}
     # look up names for new devices, and for saved ones still named after their IP
     lookup = [ip for ip, entry in entries.items() if not entry or entry["deviceName"] == entry["ip"]]
@@ -183,7 +183,7 @@ def check_safety(found):
     """Check devices marked as the user's own, and only ones seen on this network just now."""
     here = set(found)
     try:
-        here.add(agent.my_ip(API_URL))  # this computer
+        here.add(my_ip())  # this computer
     except OSError:
         pass
     with urlopen(API_URL, timeout=3) as response:
