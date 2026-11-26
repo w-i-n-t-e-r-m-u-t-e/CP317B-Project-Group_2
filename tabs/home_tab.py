@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QFrame, QStackedLayout, QWidget, QVBoxLayout, QLabel, QPushButton
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QIcon
-from styles.styles import REGISTER_BUTTON_IMAGE
+from styles.styles import REGISTER_BUTTON_IMAGE, BUtTON_STYLE
 
 def create_home_tab():
     home_tab = QWidget()
@@ -18,7 +18,9 @@ def create_home_tab():
     registration_button = QPushButton()
     registration_button.setIcon(QIcon(REGISTER_BUTTON_IMAGE))
     registration_button.clicked.connect(refresh)  # Connect the button click to the refresh function
-    registration_button.setIconSize(QSize(100, 100))  # Set the icon size by pixel count
+    registration_button.setFixedSize(QSize(100, 50))  # Set the button size by pixel count
+    registration_button.setIconSize(QSize(100, 50))  # Set the icon size by pixel count
+    registration_button.setStyleSheet(BUtTON_STYLE)  # Apply the custom button style
 
     # add the ui to the device registration frame
     device_registration_frame.addWidget(device_registration_boarder)
