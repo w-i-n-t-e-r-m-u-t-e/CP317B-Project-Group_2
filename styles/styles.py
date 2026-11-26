@@ -8,6 +8,10 @@ QPushButton {{ background: white; border: 1px solid #d1d5db; border-radius: 6px;
 QPushButton:hover {{ border-color: {ACCENT}; }}
 QPushButton#primary {{ background: {ACCENT}; border-color: {ACCENT}; color: white; }}
 QPushButton#row {{ padding: 4px 10px; font-size: 13px; }}
+QLabel#verdict {{ font-size: 18px; font-weight: 600; }}
+QFrame#card {{ background: white; border: 1px solid #e5e7eb; border-radius: 8px; }}
+QFrame#card QLabel {{ background: white; border: none; }}
+QLabel#cardTitle {{ font-weight: 600; }}
 QLineEdit {{ background: white; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px; }}
 QLineEdit:focus {{ border-color: {ACCENT}; }}
 QTableWidget {{ background: white; border: 1px solid #e5e7eb; border-radius: 8px; }}

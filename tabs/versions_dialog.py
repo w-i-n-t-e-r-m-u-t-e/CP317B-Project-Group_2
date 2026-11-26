@@ -11,6 +11,8 @@ class VersionsDialog(QDialog):
         if not types:
             layout.addRow(QLabel("No device has a type yet. Add one with Edit."))
         self.fields = {}
+        if types:
+            layout.addRow(QLabel("Leave a box empty to use published release data."))
         for kind in types:
             self.fields[kind] = QLineEdit(latest.get(kind, ""))
             layout.addRow(kind, self.fields[kind])

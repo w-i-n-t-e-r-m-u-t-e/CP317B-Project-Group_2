@@ -13,7 +13,10 @@ public class DeviceMapperImpl implements DeviceMapper {
         return new CreateDeviceRequest(dto.Device_Name(),
                                         dto.IP(),
                                         dto.Device_Version(),
-                                        dto.Device_Type());
+                                        dto.Device_Type(),
+                                        dto.Trust(),
+                                        dto.Mac(),
+                                        dto.Open_Ports());
     }
 
 
@@ -22,7 +25,10 @@ public class DeviceMapperImpl implements DeviceMapper {
         return new ModifyDeviceRequest(dto.Device_Name(),
                                         dto.IP(),
                                         dto.Device_Version(),
-                                        dto.Device_Type());
+                                        dto.Device_Type(),
+                                        dto.Trust(),
+                                        dto.Mac(),
+                                        dto.Open_Ports());
     }
 
     @Override
@@ -33,6 +39,9 @@ public class DeviceMapperImpl implements DeviceMapper {
                                 device.getStatus(),
                                 device.getDeviceVersion(),
                                 device.getDeviceType(),
+                                device.getTrust(),
+                                device.getMac(),
+                                device.getOpenPorts(),
                                 device.getLastUpdate());
     }
 

@@ -2,6 +2,7 @@
 
     python agent.py                                  # backend on this computer
     python agent.py --server http://192.168.1.20:8080
+    python agent.py --server "http://[2001:db8::5]:8080"   # IPv6 needs the brackets
 
 Needs only Python, so this one file can be copied to other computers.
 """
@@ -28,14 +29,28 @@ def os_info():
         return system, platform.release()
 
 
-def my_ip(server):
-    """The address this computer uses to reach the server (or the local network)."""
-    host = urlparse(server).hostname
-    if host in ("localhost", "127.0.0.1"):
-        host = "10.255.255.255"
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-        s.connect((host, 8080))  # sends nothing
+def address_towards(host, family):
+    """The address this computer would use to reach host. Sends nothing."""
+    with socket.socket(family, socket.SOCK_DGRAM) as s:
+        s.connect((host, 8080))
         return s.getsockname()[0]
+
+
+def my_ip(server):
+    """This computer's address: IPv4 on a normal network, IPv6 on an IPv6-only one."""
+    host = urlparse(server).hostname
+    if host not in ("localhost", "127.0.0.1", "::1") and ":" in host:
+        return address_towards(host, socket.AF_INET6)
+    if host in ("localhost", "127.0.0.1", "::1") or host.endswith(".local"):
+        host = "10.255.255.255"
+    try:
+        ip = address_towards(host, socket.AF_INET)
+    except OSError:
+        ip = None
+    # 192.0.0.x is a stand-in used on IPv6-only mobile networks, not a real address
+    if ip is None or ip.startswith("192.0.0."):
+        return address_towards("2001:4860:4860::8888", socket.AF_INET6)
+    return ip
 
 
 def find_entry(devices, name, ip, kind):
@@ -68,11 +83,11 @@ def report(server, name, ip, kind, version):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Report this device to the backend.")
     parser.add_argument("--server", default="http://localhost:8080")
-    server = parser.parse_args().server
-    if "://" not in server:
-        server = "http://" + server
+    args = parser.parse_args()
+    server = args.server if "://" in args.server else "http://" + args.server
     name = platform.node().removesuffix(".local")[:25] or "unnamed"
     kind, version = os_info()
+
     try:
         ip = my_ip(server)
         result = report(server, name, ip, kind, version)

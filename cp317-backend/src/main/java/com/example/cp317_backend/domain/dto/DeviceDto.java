@@ -11,5 +11,8 @@ public record DeviceDto(UUID id,
                         DeviceStatus status,
                         String deviceVersion,
                         String deviceType,
+                        String trust,
+                        String mac,
+                        String openPorts,
                         LocalDate lastUpdated) {
 }

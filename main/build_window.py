@@ -11,6 +11,6 @@ def build_window():
     layout.addWidget(create_devices_screen())
     window.setStyleSheet(APP_STYLE)
 
-    window.resize(1000, 500)
+    window.resize(1100, 600)
     window.show()
     return window

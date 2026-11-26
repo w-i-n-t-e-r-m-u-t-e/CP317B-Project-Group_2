@@ -7,41 +7,34 @@ CP317 B Group Project.
 - Java (JDK) 25
 - Python 3.10 or newer
 
-## 1. Start the backend
-Keep this terminal open. It serves `http://localhost:8080/api/v1/devices`.
-
-macOS / Linux:
-```bash
-cd cp317-backend
-sh mvnw spring-boot:run
-```
-Windows:
-```bat
-cd cp317-backend
-mvnw.cmd spring-boot:run
-```
-If Maven picks the wrong Java, set `JAVA_HOME` to your JDK 25 folder.
-
-## 2. Start the app
-In a second terminal, from the project folder.
-
+## Set up once
 macOS / Linux:
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python main/main.py
 ```
 Windows:
 ```bat
 py -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
-.venv\Scripts\python main\main.py
 ```
 
+## Run
+One command starts the backend and the app, and stops the backend when you close the window.
+```bash
+.venv/bin/python run.py
+```
+Windows: `.venv\Scripts\python run.py`. If it cannot find Java, set `JAVA_HOME` to your JDK 25 folder. Errors are in `backend.log`.
+
 ## Using it
-- **Register device:** add one by hand (name, IPv4 address, version, optional type).
+- The app opens on what needs your attention: new devices ("Is this yours?"), ones you don't recognise, and your outdated ones. **Show all devices** has the full table.
+- **Register device:** add one by hand (name, IPv4 or IPv6 address, version, optional type).
 - **Scan network:** pings the 254 addresses around your computer and adds what answers. Some devices ignore pings. Only scan networks you have permission to scan.
-- **Latest versions:** enter the newest version for each device type. Devices then show Updated, Outdated or Unknown.
+- **IPv6-only networks** (some phone hotspots): the scan sends one ping to all neighbours instead of trying each address. It works on macOS and Linux, and misses devices that ignore the ping. Agent addresses need brackets: `--server "http://[address]:8080"`.
+- **Update status:** macOS, iOS, Windows, Ubuntu and Android are checked against [endoflife.date](https://endoflife.date) (needs internet; only the product name is sent). Windows, Ubuntu and Android can only be shown as supported or not. **Latest versions** overrides this by hand.
+- **This computer:** each scan fills in its type and version automatically and marks it **Mine**.
+- **Safety check:** each scan looks for Telnet, FTP, screen sharing and video streams on devices you marked **Mine**. Finding nothing does not prove a device is safe.
+- **Rescan every 15 min:** off until you tick it.
 
 ## Agent (reports a computer's OS version)
 `agent.py` needs only Python, so you can copy that one file to another computer.
@@ -55,11 +48,15 @@ It reports once each time you run it.
 ```bash
 python3 utils/version.py
 python3 utils/vendor.py
+python3 utils/scan6.py
+python3 utils/attention.py
+python3 -m utils.releases
+python3 -m utils.ports
 cd cp317-backend && sh mvnw test
 ```
 
 ## Known limits
-- Devices are lost when the backend restarts.
+- Devices are saved in `cp317-backend/data/`. Delete that folder to start fresh.
 - The API has no login, and anyone on your network can reach it. Do not run it on shared Wi-Fi.
 - Latest versions are saved only on the computer running the app.
 - The status stored by the backend is always `UPDATED`; the app works out the status it shows.

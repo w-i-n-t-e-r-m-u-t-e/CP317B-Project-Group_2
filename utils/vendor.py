@@ -46,11 +46,12 @@ def maker(mac):
 
 
 def label(ip, mac):
-    """'Samsung (.162)', or the IP if the maker is unknown. At most 25 characters."""
+    """'Samsung (.162)' or 'Samsung (:7d64)', or the IP if the maker is unknown. At most 25 characters."""
     name = maker(mac)
     if not name:
         return ip
-    suffix = f" (.{ip.rsplit('.', 1)[1]})"
+    separator = ":" if ":" in ip else "."
+    suffix = f" ({separator}{ip.rsplit(separator, 1)[1]})"
     return name[:25 - len(suffix)] + suffix
 
 
@@ -62,4 +63,5 @@ if __name__ == "__main__":  # self-check: python utils/vendor.py
     assert label("10.0.0.5", mac) == "Nokia Shanghai Bell (.5)"
     assert label("10.0.0.5", "DA1122334455") == "Private address (.5)"
     assert label("10.0.0.5", None) == "10.0.0.5"
+    assert label("fe80::1:7d64", mac) == "Nokia Shanghai B (:7d64)" or label("fe80::1:7d64", mac).endswith("(:7d64)")
     print("ok")

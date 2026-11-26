@@ -29,9 +29,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Device createDevice(CreateDeviceRequest request) {
-        if (deviceRepository.existsByIpAndDeviceName(request.ip(), request.deviceName())) {
-            throw new DuplicateDeviceException();
-        }
+        rejectDuplicate(request.ip(), request.deviceName(), request.mac(), null);
         Instant now = Instant.now();
         Device device = new Device(
                 null,
@@ -44,9 +42,22 @@ public class DeviceServiceImpl implements DeviceService {
                 );
 
         device.setDeviceType(request.deviceType());
+        device.setTrust(request.trust());
+        device.setMac(request.mac());
+        device.setOpenPorts(request.openPorts());
 
         return deviceRepository.save(device); // also returns task
 
+    }
+
+    /** Same name and IP is a duplicate, unless the hardware addresses show two different devices. */
+    private void rejectDuplicate(String ip, String name, String mac, UUID self) {
+        boolean duplicate = deviceRepository.findByIpAndDeviceName(ip, name).stream()
+                .anyMatch(other -> !other.getId().equals(self)
+                        && (mac == null || other.getMac() == null || mac.equals(other.getMac())));
+        if (duplicate) {
+            throw new DuplicateDeviceException();
+        }
     }
 
     @Override
@@ -57,16 +68,24 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Device modifyDevice(UUID deviceId, ModifyDeviceRequest deviceRequest) {
         Device device = deviceRepository.findById(deviceId).orElseThrow(() -> new TaskNotFoundException(deviceId));
-        if (deviceRepository.existsByIpAndDeviceNameAndIdNot(
-                deviceRequest.ip(), deviceRequest.deviceName(), deviceId)) {
-            throw new DuplicateDeviceException();
-        }
+        // an update that sends no hardware address keeps the saved one, so compare with that
+        String mac = deviceRequest.mac() != null ? deviceRequest.mac() : device.getMac();
+        rejectDuplicate(deviceRequest.ip(), deviceRequest.deviceName(), mac, deviceId);
 
         device.setDeviceName(deviceRequest.deviceName());
         device.setDeviceVersion(deviceRequest.deviceVersion());
         device.setIp(deviceRequest.ip());
         if (deviceRequest.deviceType() != null) { // leave the type alone if it was not sent
             device.setDeviceType(deviceRequest.deviceType());
+        }
+        if (deviceRequest.trust() != null) {
+            device.setTrust(deviceRequest.trust());
+        }
+        if (deviceRequest.mac() != null) {
+            device.setMac(deviceRequest.mac());
+        }
+        if (deviceRequest.openPorts() != null) {
+            device.setOpenPorts(deviceRequest.openPorts());
         }
         device.setLastUpdate(LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()));
 

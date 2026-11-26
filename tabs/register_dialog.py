@@ -16,7 +16,7 @@ class RegisterDialog(QDialog):
 
         # the keys are the field names the backend expects, with its length limits
         self.fields = {}
-        for key, label, limit in (("Device_Name", "Name", 25), ("IP", "IP", 30), ("Device_Version", "Version", 30),
+        for key, label, limit in (("Device_Name", "Name", 25), ("IP", "IP", 45), ("Device_Version", "Version", 30),
                                   ("Device_Type", "Type (optional)", 30)):
             self.fields[key] = QLineEdit()
             self.fields[key].setMaxLength(limit)

@@ -61,6 +61,15 @@ public class Device {
     @Column(name = "Device_Type")
     private String deviceType; // e.g. macOS or Windows; may be null
 
+    @Column(name = "Trust")
+    private String trust; // MINE, GUEST or UNKNOWN; null until the user has reviewed it
+
+    @Column(name = "Mac")
+    private String mac; // hardware address, used to recognise a device whose IP changed
+
+    @Column(name = "Open_Ports")
+    private String openPorts; // risky ports found, e.g. "21,23"; "" if none; null if never checked
+
     @Column(name = "Created", updatable = true, nullable = false)
     private Instant created;
 
@@ -116,6 +125,18 @@ public class Device {
     public String getDeviceType() {return deviceType;}
 
     public void setDeviceType(String deviceType) {this.deviceType = deviceType;}
+
+    public String getTrust() {return trust;}
+
+    public void setTrust(String trust) {this.trust = trust;}
+
+    public String getMac() {return mac;}
+
+    public void setMac(String mac) {this.mac = mac;}
+
+    public String getOpenPorts() {return openPorts;}
+
+    public void setOpenPorts(String openPorts) {this.openPorts = openPorts;}
 
     public Instant getCreated() {return created;}
 
