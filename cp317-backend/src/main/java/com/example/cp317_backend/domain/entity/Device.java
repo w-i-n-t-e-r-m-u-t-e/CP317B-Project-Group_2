@@ -40,11 +40,12 @@ public class Device {
     }
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ID", updatable = false, nullable = false)
     private UUID id;
 
 
-    @Column(name = "IP", updatable = false, nullable = false)
+    @Column(name = "IP", updatable = true, nullable = false)
     private String ip;
 
     @Column(name = "Device_name", updatable = true, nullable = false)
@@ -56,6 +57,9 @@ public class Device {
 
     @Column(name = "Device_Version", updatable = true, length =1000)
     private String deviceVersion;
+
+    @Column(name = "Device_Type")
+    private String deviceType; // e.g. macOS or Windows; may be null
 
     @Column(name = "Created", updatable = true, nullable = false)
     private Instant created;
@@ -108,6 +112,10 @@ public class Device {
     public void setDeviceVersion(String deviceVersion) {
         this.deviceVersion = deviceVersion;
     }
+
+    public String getDeviceType() {return deviceType;}
+
+    public void setDeviceType(String deviceType) {this.deviceType = deviceType;}
 
     public Instant getCreated() {return created;}
 

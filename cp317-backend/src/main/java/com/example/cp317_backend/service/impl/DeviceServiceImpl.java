@@ -4,6 +4,7 @@ import com.devtiro.task.domain.CreateDeviceRequest;
 import com.devtiro.task.domain.ModifyDeviceRequest;
 import com.devtiro.task.domain.entity.Device;
 import com.devtiro.task.domain.entity.DeviceStatus;
+import com.devtiro.task.exception.DuplicateDeviceException;
 import com.devtiro.task.exception.TaskNotFoundException;
 import com.devtiro.task.repository.DeviceRepository;
 import com.devtiro.task.service.DeviceService;
@@ -28,6 +29,9 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Device createDevice(CreateDeviceRequest request) {
+        if (deviceRepository.existsByIpAndDeviceName(request.ip(), request.deviceName())) {
+            throw new DuplicateDeviceException();
+        }
         Instant now = Instant.now();
         Device device = new Device(
                 null,
@@ -39,22 +43,31 @@ public class DeviceServiceImpl implements DeviceService {
                 null
                 );
 
+        device.setDeviceType(request.deviceType());
+
         return deviceRepository.save(device); // also returns task
 
     }
 
     @Override
     public List<Device> listDevices() {
-        return deviceRepository.findAll(Sort.by(Direction.ASC, "Device_name"));
+        return deviceRepository.findAll(Sort.by(Direction.ASC, "deviceName"));
     }
 
     @Override
     public Device modifyDevice(UUID deviceId, ModifyDeviceRequest deviceRequest) {
         Device device = deviceRepository.findById(deviceId).orElseThrow(() -> new TaskNotFoundException(deviceId));
+        if (deviceRepository.existsByIpAndDeviceNameAndIdNot(
+                deviceRequest.ip(), deviceRequest.deviceName(), deviceId)) {
+            throw new DuplicateDeviceException();
+        }
 
         device.setDeviceName(deviceRequest.deviceName());
         device.setDeviceVersion(deviceRequest.deviceVersion());
         device.setIp(deviceRequest.ip());
+        if (deviceRequest.deviceType() != null) { // leave the type alone if it was not sent
+            device.setDeviceType(deviceRequest.deviceType());
+        }
         device.setLastUpdate(LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()));
 
         return deviceRepository.save(device);

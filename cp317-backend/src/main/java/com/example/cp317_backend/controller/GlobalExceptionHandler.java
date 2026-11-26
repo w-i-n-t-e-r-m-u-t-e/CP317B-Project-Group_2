@@ -1,6 +1,7 @@
 package com.devtiro.task.controller;
 
 import com.devtiro.task.domain.dto.ErrorDto;
+import com.devtiro.task.exception.DuplicateDeviceException;
 import com.devtiro.task.exception.TaskNotFoundException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -28,14 +29,19 @@ public class GlobalExceptionHandler {
 
         }
 
+    @ExceptionHandler(TaskNotFoundException.class)
     public ResponseEntity<ErrorDto> handleTaskNotFoundException (TaskNotFoundException ex) {
         UUID taskNotFoundId = ex.getId();
         String errorMessage = String.format("Task with ID %s not found", taskNotFoundId);
         ErrorDto errorDto =  new ErrorDto(errorMessage);
-        return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
 
     }
 
+    @ExceptionHandler(DuplicateDeviceException.class)
+    public ResponseEntity<ErrorDto> handleDuplicate(DuplicateDeviceException ex) {
+        return new ResponseEntity<>(new ErrorDto(ex.getMessage()), HttpStatus.CONFLICT);
+    }
 
 }
 

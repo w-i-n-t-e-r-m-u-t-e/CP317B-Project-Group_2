@@ -6,26 +6,33 @@ import com.devtiro.task.domain.dto.*;
 import com.devtiro.task.domain.entity.Device;
 import com.devtiro.task.mapper.DeviceMapper;
 
+@org.springframework.stereotype.Component
 public class DeviceMapperImpl implements DeviceMapper {
     @Override
     public CreateDeviceRequest fromDto(CreateDeviceRequestDto dto) {
         return new CreateDeviceRequest(dto.Device_Name(),
                                         dto.IP(),
-                                        dto.Device_Version());
+                                        dto.Device_Version(),
+                                        dto.Device_Type());
     }
 
 
     @Override
     public ModifyDeviceRequest fromDto(ModifyDeviceRequestDto dto) {
-        return null;
+        return new ModifyDeviceRequest(dto.Device_Name(),
+                                        dto.IP(),
+                                        dto.Device_Version(),
+                                        dto.Device_Type());
     }
 
     @Override
     public DeviceDto toDto(Device device) {
-        return new DeviceDto(device.getIp(),
+        return new DeviceDto(device.getId(),
+                                device.getIp(),
                                 device.getDeviceName(),
                                 device.getStatus(),
                                 device.getDeviceVersion(),
+                                device.getDeviceType(),
                                 device.getLastUpdate());
     }
 
